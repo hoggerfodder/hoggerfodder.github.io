@@ -14,6 +14,9 @@
   <div class="post-body">
     {{ .Content }}
   </div>
-  {{ if eq .Section "posts" }}{{ partial "giscus.html" . }}{{ end }}
+  {{ if eq .Section "posts" }}
+  <p class="tip-line">If this was worth a coffee, there's a <a href="{{ .Site.Params.kofi }}" rel="noopener">Ko-fi</a>.</p>
+  {{ partial "giscus.html" . }}
+  {{ end }}
 </article>
 {{ end }}

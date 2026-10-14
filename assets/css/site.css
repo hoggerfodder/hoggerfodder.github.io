@@ -145,3 +145,5 @@ th { font-family: var(--sans); font-weight: 600; }
   h1 { font-size: 1.6rem; }
   .site-header { padding-top: 1rem; }
 }
+
+.tip-line { margin-top: 2.5rem; color: var(--muted); font-family: var(--sans); font-size: .9rem; font-style: italic; }
