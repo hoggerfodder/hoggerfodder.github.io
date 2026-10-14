@@ -1,0 +1,22 @@
+{{/* giscus comments, backed by GitHub Discussions. Rendered only once repoId and categoryId are set in hugo.toml. */}}
+{{ with .Site.Params.giscus }}{{ if and .repoId .categoryId }}
+<section class="comments" aria-label="Comments">
+  <h2>Comments and corrections</h2>
+  <script src="https://giscus.app/client.js"
+    data-repo="{{ .repo }}"
+    data-repo-id="{{ .repoId }}"
+    data-category="{{ .category }}"
+    data-category-id="{{ .categoryId }}"
+    data-mapping="pathname"
+    data-strict="1"
+    data-reactions-enabled="0"
+    data-emit-metadata="0"
+    data-input-position="top"
+    data-theme="preferred_color_scheme"
+    data-lang="en"
+    data-loading="lazy"
+    crossorigin="anonymous"
+    async>
+  </script>
+</section>
+{{ end }}{{ end }}

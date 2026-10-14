@@ -1,0 +1,17 @@
+# Hugo
+public/
+resources/_gen/
+.hugo_build.lock
+
+# Editors and OS
+.DS_Store
+*.swp
+*~
+.idea/
+.vscode/
+
+# Local drafts you don't want in the public repo yet
+drafts-private/
+
+# Local working notes
+NOTES.md

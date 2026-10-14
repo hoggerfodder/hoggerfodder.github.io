@@ -1,0 +1,14 @@
+{{ define "main" }}
+<section class="home">
+  <div class="home-intro">
+    {{ .Content }}
+  </div>
+  <h2>Posts</h2>
+  {{ $posts := where .Site.RegularPages "Section" "posts" }}
+  {{ if $posts }}
+    {{ partial "post-list.html" (dict "pages" $posts) }}
+  {{ else }}
+    <p class="muted">Nothing published yet.</p>
+  {{ end }}
+</section>
+{{ end }}

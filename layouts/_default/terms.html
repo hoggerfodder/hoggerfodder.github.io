@@ -1,0 +1,10 @@
+{{ define "main" }}
+<section class="listing">
+  <h1>{{ .Title }}</h1>
+  <ul class="post-list">
+    {{ range .Pages }}
+    <li><a class="post-list-title" href="{{ .RelPermalink }}">{{ .Title }}</a> <span class="post-list-date">{{ .Pages.Len }}</span></li>
+    {{ end }}
+  </ul>
+</section>
+{{ end }}
