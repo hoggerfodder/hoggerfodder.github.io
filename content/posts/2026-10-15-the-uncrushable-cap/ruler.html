@@ -20,6 +20,7 @@
       --ink-on-dodge: #fff; --ink-on-crit: #fff; --ink-on-crush: #0b0b0b; --ink-on-hit: #e6e1d8;
     }
   }
+  html { overflow: hidden; }
   * { box-sizing: border-box; }
   html, body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.45 var(--sans); }
   body { padding: .75rem .9rem 1rem; }
@@ -324,6 +325,14 @@ function build() {
 }
 
 build(); readHash(); render();
+
+// Tell the post page how tall this figure is, so the iframe fits it (no fixed height, no inner scrollbar).
+(function () {
+  if (window.parent === window) return;
+  const report = () => parent.postMessage({ hfHeight: document.body.getBoundingClientRect().height }, '*');
+  new ResizeObserver(report).observe(document.body);
+  addEventListener('load', report);
+})();
 </script>
 </body>
 </html>

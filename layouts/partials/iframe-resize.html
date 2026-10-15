@@ -1,0 +1,9 @@
+{{/* Interactives in post folders post their content height; this sets each iframe to match, so no fixed heights and no inner scrolling. */}}
+<script>
+addEventListener('message', function (e) {
+  if (!e.data || typeof e.data.hfHeight !== 'number') return;
+  document.querySelectorAll('iframe').forEach(function (f) {
+    if (f.contentWindow === e.source) f.style.height = Math.ceil(e.data.hfHeight) + 'px';
+  });
+});
+</script>

@@ -15,6 +15,7 @@
     {{ .Content }}
   </div>
   {{ if eq .Section "posts" }}
+  {{ partial "iframe-resize.html" . }}
   <p class="tip-line">If this was worth a coffee, there's a <a href="{{ .Site.Params.kofi }}" rel="noopener">Ko-fi</a>.</p>
   {{ partial "giscus.html" . }}
   {{ end }}
