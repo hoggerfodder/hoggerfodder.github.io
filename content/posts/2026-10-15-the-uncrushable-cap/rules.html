@@ -21,10 +21,10 @@
     }
   }
   * { box-sizing: border-box; }
-  html { overflow: hidden; }
+  html { overflow: auto; }
   html, body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.45 var(--sans); }
-  body { padding: .75rem .9rem .9rem; }
-  .row { display: flex; flex-wrap: wrap; gap: .4rem .8rem; align-items: center; margin-bottom: .7rem; }
+  body { padding: .6rem .9rem .6rem; }
+  .row { display: flex; flex-wrap: wrap; gap: .4rem .8rem; align-items: center; margin-bottom: .5rem; }
   .seg { display: inline-flex; gap: .25rem; align-items: center; border: 0; padding: 0; margin: 0; }
   .seg legend { float: left; font-size: .8rem; color: var(--muted); margin-right: .3rem; padding: 0; }
   .seg input { position: absolute; opacity: 0; width: 0; height: 0; }
@@ -35,7 +35,8 @@
   .seg.off { opacity: .45; }
 
   .rules { display: grid; grid-template-columns: 11.5rem 1fr; gap: .2rem .7rem; align-items: start; }
-  .rules .name { font-size: .85rem; line-height: 1.25; }
+  .rules .name { font-size: .85rem; line-height: 1.25; height: 52px; overflow: hidden; }
+  .rules .name, .rules .name small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .rules .name small { display: block; color: var(--muted); font-size: .75rem; }
   .barwrap { position: relative; height: 52px; }
   .bar { position: relative; height: 28px; }
@@ -57,7 +58,7 @@
   @media (max-width: 480px) {
     body { font-size: 14px; }
     .rules { grid-template-columns: 1fr; gap: .2rem; }
-    .rules .name { margin-top: .3rem; }
+    .rules .name { margin-top: .3rem; height: auto; }
     .rules .name small { display: none; }
     .axis { grid-column: 1; }
   }

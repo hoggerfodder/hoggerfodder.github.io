@@ -86,14 +86,14 @@ Every tooltip is exact, the sheet adds up, and the order you clicked things in i
 
 All four rules on one ruler. Any way of turning the sheet into probabilities is a set of intervals on the same 0-100 line, the sequential coins included, so they can be drawn side by side. Tick the items and swap the order:
 
-<style>@media (max-width: 480px) { iframe[src="rules.html"] { height: 520px; } }</style>
-<iframe src="rules.html" width="100%" height="360" loading="lazy" title="Four rules for fitting a point of dodge onto the ruler: sequential coins, scale everything, keep the point and shrink the rest, last interval pays"></iframe>
+<style>@media (max-width: 480px) { iframe[src="rules.html"] { height: 540px; } }</style>
+<iframe src="rules.html" width="100%" height="400" loading="lazy" title="Four rules for fitting a point of dodge onto the ruler: sequential coins, scale everything, keep the point and shrink the rest, last interval pays"></iframe>
 
 This solution seems simple and elegant. Are we done here? There are some subtle complications.
 
 ### Mind the kink
 
-
+How we deal with the probabilities has far more serious consequences than the accuracy of the tooltip. It actually determines the value of each stat. Suppose we increase dodge by 1% and shrink the ordinary damage interval by 1. Then if $D$ is the average (ordinary) damage, this reduces our average damage taken per swing by $0.01 \times D$. If instead we shrink each interval proportionally, every interval is multiplied by $100/101$, the ones that hurt us included. Ordinary damage goes from 77 to 76.24 and block from 5 to 4.95, and since a blocked hit still does most of $D$, the average damage falls by about $0.0081 \times D$. The same point of dodge buys four fifths of what it bought under the simple rule. Worse, the more avoidance you already have, the smaller the intervals that hurt you, and the less each further point is worth. Diminishing returns, built into the rule. Under the simple rule a point of dodge is worth $0.01 \times D$ whether it is your first or your fortieth, right up until the ordinary damage interval is gone.
 
 
 
