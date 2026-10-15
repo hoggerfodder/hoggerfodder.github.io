@@ -18,9 +18,9 @@ timeZone = "UTC"
   # giscus: fill these in from https://giscus.app after choosing the repo and a Discussions category.
   [params.giscus]
     repo = "hoggerfodder/hoggerfodder.github.io"
-    repoId = ""
+    repoId = "R_kgDOVI6o5A"
     category = "General"
-    categoryId = ""
+    categoryId = "DIC_kwDOVI6o5M4DIZfK"
 
 [markup]
   [markup.goldmark.renderer]
