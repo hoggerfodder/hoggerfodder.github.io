@@ -19,8 +19,8 @@ timeZone = "UTC"
   [params.giscus]
     repo = "hoggerfodder/hoggerfodder.github.io"
     repoId = "R_kgDOVI6o5A"
-    category = "General"
-    categoryId = "DIC_kwDOVI6o5M4DIZfK"
+    category = "Announcements"
+    categoryId = "DIC_kwDOVI6o5M4DIZfJ"
 
 [markup]
   [markup.goldmark.renderer]

@@ -7,7 +7,7 @@ Hogger Fodder explores aspects of World of Warcraft mechanics using maths, game 
 
 **Premise.** Let's explore some aspects from a more fundamental, first-principles perspective. The blog won't tell you what gear to choose or how to play exactly. The idea is to get a better understanding of how things work, which will hold up against rebalances and nerfs.
 
-AI will be used to run the numbers, code the site, and keep things running. If that's not your thing, you have been warned.
+AI (Claude) will be used to check the numbers, code the site, and keep things running on github. If that's not your thing, you have been warned.
 
 **Tips.** Posts are free. If one was worth something to you, there's a [Ko-fi](https://ko-fi.com/hoggerfodder). Fair warning, it changes nothing about what gets written and yet it might make me write a little faster at the margin.
 
