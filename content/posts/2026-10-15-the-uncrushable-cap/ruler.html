@@ -116,6 +116,7 @@ const C = {
   // Damage multipliers for the "expected damage" column. A blocked boss hit still does most of its damage. [inferred]
   dmg: { hit: 1.0, crit: 2.0, crush: 1.5, block: 0.9, miss: 0, dodge: 0, parry: 0 },
   // Table order and truncation order: rows are filled from the top; whatever does not fit at the bottom is cut.
+  // Crit above crush is the wiki / Elitist Jerks model (hit is cut first, then crush, then crit). Not verified from Classic logs. [inferred]
   order: ['miss', 'dodge', 'parry', 'block', 'crit', 'crush', 'hit'],
   names: { miss: 'Miss', dodge: 'Dodge', parry: 'Parry', block: 'Block', crit: 'Crit', crush: 'Crush', hit: 'Hit' },
   sliders: [ // sheet values the reader controls
@@ -255,6 +256,12 @@ function render() {
     const p2 = resolve(claims(s2), S.rule).paid;
     const dd = (expectedDamage(p2) - base) * 100;
     m += `<tr><td>${sl.label}</td><td>${fmt(p2.crush - paid.crush)}</td><td>${fmt(p2.crit - paid.crit)}</td><td>${fmt(p2.hit - paid.hit)}</td><td>${dd > 0 ? '+' : ''}${fmt(dd)}%</td></tr>`;
+  }
+  { // defence, scaled so the row is comparable: enough skill to remove one point of boss crit
+    const step = Math.round(1 / C.critPerDefence);
+    const p2 = resolve(claims({ ...S, def: S.def + step }), S.rule).paid;
+    const dd = (expectedDamage(p2) - base) * 100;
+    m += `<tr><td>Defence +${step} (crit −1)</td><td>${fmt(p2.crush - paid.crush)}</td><td>${fmt(p2.crit - paid.crit)}</td><td>${fmt(p2.hit - paid.hit)}</td><td>${dd > 0 ? '+' : ''}${fmt(dd)}%</td></tr>`;
   }
   $('marg').innerHTML = m;
   // sync controls and hash
