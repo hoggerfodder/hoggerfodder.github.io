@@ -14,6 +14,7 @@
 #   BLOG_BROWSER  command to open a URL           (default: xdg-open)
 
 set -euo pipefail
+export TZ=UTC   # git records the local zone in every commit; keep it UTC
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT"
 POSTS="$ROOT/content/posts"
@@ -21,6 +22,8 @@ EDITOR_CMD="${BLOG_EDITOR:-omawrite}"
 BROWSER_CMD="${BLOG_BROWSER:-xdg-open}"
 EXPECTED_EMAIL_RE='^[0-9]+\+hoggerfodder@users\.noreply\.github\.com$'
 PREVIEW_URL="http://localhost:1313"
+# What may be committed: Markdown, templates, styles, config, workflow, licence, the script, images, data.
+ALLOWED_FILE_RE='(^|/)(blog|LICENSE|README\.md|\.gitignore|hugo\.toml)$|\.(md|html|xml|css|js|json|csv|toml|yml|svg|png|jpg|jpeg|webp)$'
 
 die()  { printf 'blog: %s\n' "$*" >&2; exit 1; }
 note() { printf '%s\n' "$*"; }
@@ -134,6 +137,16 @@ cmd_save() {
   [[ "$email" =~ $EXPECTED_EMAIL_RE ]] || die "git user.email is '$email'; must be the +hoggerfodder noreply address"
   git add -A
   if git diff --cached --quiet; then note "nothing to save"; return; fi
+  # Refuse anything that is not site source: archives, documents, binaries and the like
+  # have ended up in public history before. Images are allowed (publish strips their metadata).
+  local unexpected
+  unexpected=$(git diff --cached --name-only --diff-filter=AM | grep -vE "$ALLOWED_FILE_RE" || true)
+  if [[ -n "$unexpected" ]]; then
+    git reset -q
+    printf 'blog: refusing to commit unexpected file(s):\n%s\n' "$unexpected" >&2
+    die "move them out (or add the type to ALLOWED_FILE_RE if it really belongs in the public repo)"
+  fi
+  note "saving:"; git diff --cached --name-status | sed 's/^/  /'
   git commit -qm "Save $(date -u +'%Y-%m-%d %H:%M')"
   git push -q
   note "saved and pushed"
@@ -153,17 +166,19 @@ cmd_publish() {
   local dir; dir=$(dirname "$file")
   gate "$file" || die "fix the lines above, then publish again"
   strip_images "$dir"
-  rm -f "$dir/NOTES.md"
   local today; today=$(date -u +%F)
   sed -i "s/^draft: true$/draft: false/; s/^lastmod: .*/lastmod: $today/" "$file"
   grep -q '^date: *$' "$file" && sed -i "s/^date: *$/date: $today/" "$file"
   local title; title=$(front "$file" title)
   git add -A
+  local unexpected
+  unexpected=$(git diff --cached --name-only --diff-filter=AM | grep -vE "$ALLOWED_FILE_RE" || true)
+  [[ -z "$unexpected" ]] || { git reset -q; die "refusing to commit unexpected file(s): $unexpected"; }
   git commit -m "Post: $title" >/dev/null
   git push
   local slug; slug=$(front "$file" slug)
   note "published: https://hoggerfodder.github.io/posts/$slug/ (live once the Action finishes, ~1 min)"
-  note "remember: add a row to content/mechanisms.md, and delete the sample post if it's still there"
+  note "remember: add a row to content/mechanisms.md"
 }
 
 case "${1:-}" in

@@ -17,7 +17,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  HUGO_VERSION: 0.151.0   # pinned; bump deliberately
+  HUGO_VERSION: 0.165.0   # pinned; bump deliberately
 
 jobs:
   build:
