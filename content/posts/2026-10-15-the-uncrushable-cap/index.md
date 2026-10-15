@@ -95,34 +95,41 @@ This solution seems simple and elegant. Are we done here? There are some subtle 
 How we deal with the probabilities has far more serious consequences than the accuracy of the tooltip. It actually determines the value of each stat. Suppose we increase dodge by 1% and shrink the ordinary damage interval by 1. Then if $D$ is the average (ordinary) damage, this reduces our average damage taken per swing by $0.01 \times D$. If instead we shrink each interval proportionally, every interval is multiplied by $100/101$, the ones that benefit us included. Ordinary damage goes from 77 to 76.24 and block from 5 to 4.95, and since a blocked hit still does most of $D$, the average damage falls by about $0.0081 \times D$. The same point of dodge buys four fifths of what it bought under the simple rule. 
 Worse, the more avoidance you already have, the smaller the intervals that hurt you, and the less each further point is worth. Each stat has diminishing returns. Under the simple rule a point of dodge is worth $0.01 \times D$ whether it is your first or your fortieth, right up until the ordinary damage interval is gone. Now things get really interesting.
 
+If the ordinary damage interval is pushed over the edge, then you no longer take any ordinary damage. Instead, we now shorten the next interval when you increase your defence stats. Against an enemy of similar level, this is the crit interval. Since a crit multiplies the ordinary damage by 2, shortening that interval has a much greater effect. Added dodge, parry, or miss is now worth twice as much as before. Returns have increased.
+
+Block is the odd one out, because a block does not avoid the hit, it only takes a bite out of it. If your block value is $B$, a blocked hit still does $D - B$. Say a boss hits for $D = 1000$ and your shield blocks $B = 100$. While ordinary damage pays, a point of block turns one ordinary hit per 100 swings into a blocked one, saving $D - (D - B) = B$, so 100 damage per 100 swings, while a point of dodge saves the full 1000. Block looks nearly worthless. Once crit pays, a point of block turns a crit into a blocked hit and saves $2D - (D - B) = D + B$, so 1100, while dodge saves 2000. Block went from a tenth of dodge to more than half of it, by crossing the same edge.
+This again continues until crit disappears off the edge. Now the block interval is shortened if we increase miss, dodge, or parry. But since a blocked hit does less damage than a crit or an ordinary hit, the value of each stat decreases. With the same numbers, a point of dodge now removes one blocked hit per 100 swings and saves $D - B = 900$, down from 2000 a moment ago and below the 1000 it was worth at the start. In fact, if we now increase our block chance, this has no effect at all. The block interval grows by a point at one end and is cut by a point at the other, and nothing on the ruler moves.
+
+Have you ever wondered why gear advice is never simple? This is the reason. The worth of a point of dodge is not a property of dodge. It depends on which interval is paying, and that depends on everything else you are wearing, on your buffs, and on who is hitting you. The same trinket is worth 1000 in one build, 2000 in another and 900 in a third, and a point of block can be worth almost nothing or more than half a dodge. A stat weight is a snapshot of one build against one enemy, and it stops being true the moment an interval runs out. BiS might not be BiS for you!
+
+
+### Uncrushable
+
+Once major damage intervals of crit and ordinary are pushed off the edge, you are effectively capped. Yes, you can stil exchange block chance for no-damage outcomes like miss, parry, or dodge, but that is it. The only melee damage you take is reduced by your block value. What happened to the crush outcome, though? Classic WoW had anopther mechanic. If you fight enemies $\ge 3$ levels above you, they can land a crushing blow at $1.5 \times$ the ordinary damage. This depends only on your base level stats and not on your gear, so unlike crit, you cannot dreictly reduce it. 
 
 
 
 
+- What "capped" means on the ruler. Against an equal-level mob, once crit is gone too, only miss, dodge, parry and block are left on the ruler. A further point of any of them has to be cut from one of the other four. It moves damage around between no-damage outcomes, or between block and a dodge, and changes nothing you care about. Worth zero. That is the cap.
+- The sheet keeps counting. Gear still adds to the numbers, the tooltips are still exact, and miss + dodge + parry + block can read 110 or 130. The sheet reports the intervals asked for, the ruler shows what was paid. This is how a sum of probabilities ends up above 100 and means nothing is wrong.
+- A cap is a cliff, not a ceiling. Returns went 1, then 2, then 0.9, then 0. The value of the last point before the cap and the first point after it differ by the whole worth of a blocked hit. Nothing about the stat changed; the ruler ran out.
+- Where exactly. Against an equal-level mob the four need to cover 100 on the ruler. The sheet and the ruler agree, so the cap reads 100 on the sheet.
+- The sim's view. A stat weight is the slope at one point on this staircase. Two steps down it is wrong, and past the cap it is wrong by everything.
 
+### Uncrushable
 
-
-
-
-
-## What an extra point is worth
-
-- The rule fixes the value of a point. A point of dodge removes one point from whichever interval is paying. While ordinary damage pays, one point of dodge is worth exactly one ordinary hit avoided per 100 swings, whatever the rest of the sheet says. Same for miss, parry, and nearly for block, since a blocked hit still lands with the block value taken off.
-- That is why the sheet can be trusted at all. Under the sequential or scaled rules a point of dodge was worth 0.95 or 0.91 of a point, and less the more you already had. Under the priority rule it is worth a point until the paying interval runs out.
-- Enter the boss. Against a level-60 mob the list above ordinary damage holds only crit, and the game removes that with defence. A raid boss is level 63, three levels up, and two things change on the ruler. Each of miss, dodge, parry and block loses 0.6 (0.2 per level per row, inferred), and a 15-point interval appears between crit and ordinary damage, the crushing blow at 150% damage.
-- With the numbers from the table, the boss sees 4.4 miss, 8.4 dodge, 7.4 parry, 4.4 block, then 5.6 crit, 15 crush, and ordinary damage takes the rest. Same gear, same sheet, a shorter ruler.
+- Enter the boss. A raid boss is level 63, three levels up, and two things change on the ruler. Each of miss, dodge, parry and block loses 0.6 (0.2 per level per row, inferred), and a 15-point interval appears between crit and ordinary damage, the crushing blow at 150% of ordinary damage.
+- With the numbers from the table, the boss sees 4.4 miss, 8.4 dodge, 7.4 parry, 4.4 block, then 5.6 crit, 15 crush, and ordinary damage takes the rest. Same gear, same sheet, a shorter ruler and a new interval to push off.
 - The ruler, live. Presets left to right: dungeon gear vs a level-60 mob, the same gear vs level 63, a raid tank with Shield Block down, Shield Block up a hair short, one point over the edge. The hatched part past the end is what the stats asked for and the ruler could not give.
 
 <iframe src="ruler.html" width="100%" height="680" loading="lazy" title="Attack table ruler: sliders for miss, dodge, parry and block, a boss level toggle and three rules for resolving the roll"></iframe>
 
-- Shield Block puts +75 on block for a few seconds and the four rows ask for more than the ruler holds. Ordinary damage goes first. Now the interval above it pays, crush, and a point of dodge removes a crushing blow instead of a hit. Worth 1.5 hits per 100 swings, not 1.
-- Once crush is gone, crit pays. A point is worth 2. Once crit is gone, nothing pays. A point is worth 0.
-- So returns to a point of avoidance rise in steps, 1, then 1.5, then 2, and then collapse to nothing. Increasing returns, then a cliff. This is the opposite of the diminishing returns a tooltip or a sim's stat weight suggests, and the cliff is what people call a cap.
-- The threshold. Crush is gone the moment the intervals above it, your four plus the boss's crit, cover the ruler. On the sheet that is 102.4 minus the boss's crit chance. The 2.4 is four rows times 0.6, 100 on the ruler dressed in sheet units. The guides say 102.4 flat because they assume defence has already removed crit (440 against a +3 boss).
+- The staircase now has an extra step. Ordinary damage pays first at $D$, then crush at $1.5D$, then crit at $2D$, then block at $D - B$, then nothing. Shield Block, +75 block for a few seconds, is what carries a warrior up it.
+- Uncrushable means crush has been pushed off. That happens the moment the intervals above it, your four plus the boss's crit, cover the ruler. On the sheet that is 102.4 minus the boss's crit chance. The 2.4 is four rows times 0.6, 100 on the ruler dressed in sheet units.
+- Why the guides say 102.4 flat. They assume defence has already removed crit (440 against a +3 boss). Then crit is 0, and the sheet has to read exactly 102.4. A tank below the defence cap is uncrushable sooner, at 96.8, and still crittable.
 - "A hair short" and "over the edge" on the ruler. 101.9 leaves crush at 0.5% of swings; one more point of dodge and it is zero. A threshold, not a slope. This is the odd thing from the top of the post.
-- The sting in the order. Near the cap, defence buys less than it looks. Remove a point of crit and, while crush is still being cut, a point of crush comes back. Worked case from the ruler: four rows at 90 on the ruler, defence 300, crit 5.6, crush 4.4. Raise defence to 440: crit 0, crush 10. Damage per 100 swings 17.8 → 15.0. Naive return 11.2, actual 2.8. The same gear gives 1.5 for a point of dodge.
-- Under the scale-everything rule none of this happens. Every interval shrinks a little, crush never reaches zero, marginal values are smooth and small, and there is no cap anywhere. The kinks are a property of the rule, not of the stats.
-- Takeaway for a tank. A point's worth depends on which interval is paying, not on the stat. The sheet cannot tell you; the rule can.
+- The sting in the order. Near the cap, defence buys less than it looks. Remove a point of crit and, while crush is still being cut, a point of crush comes back. Worked case from the ruler: four rows at 90 on the ruler, defence 300, crit 5.6, crush 4.4. Raise defence to 440: crit 0, crush 10. Damage per 100 swings 17.8 → 15.0 in units of $D$. Naive return 11.2, actual 2.8. The same gear gives 1.5 for a point of dodge.
+- Under the scale-everything rule none of this exists. Every interval shrinks a little, crush never reaches zero, there is no cap and no 102.4. The number is a property of the rule, not of the stats.
 - Fine print. Crit-above-crush is the wiki and Elitist Jerks model and has not been checked against Classic logs. It only matters for a tank between 96.8 and 102.4 on the sheet. Numbers box.
 
 <details><summary>The maths</summary>
