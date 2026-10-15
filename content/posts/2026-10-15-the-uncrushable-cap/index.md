@@ -86,47 +86,44 @@ Every tooltip is exact, the sheet adds up, and the order you clicked things in i
 
 All four rules on one ruler. Any way of turning the sheet into probabilities is a set of intervals on the same 0-100 line, the sequential coins included, so they can be drawn side by side. Tick the items and swap the order:
 
-<iframe src="rules.html" width="100%" height="460" loading="lazy" title="Four rules for fitting a point of dodge onto the ruler: sequential coins, scale everything, keep the point and shrink the rest, last interval pays"></iframe>
+<style>@media (max-width: 480px) { iframe[src="rules.html"] { height: 520px; } }</style>
+<iframe src="rules.html" width="100%" height="360" loading="lazy" title="Four rules for fitting a point of dodge onto the ruler: sequential coins, scale everything, keep the point and shrink the rest, last interval pays"></iframe>
 
-The only thing that can go wrong is running out of ruler, and that is what the rest of this post is about.
+This solution seems simple and elegant. Are we done here? There are some subtle complications.
 
-
-
-
-
+### Mind the kink
 
 
 
 
 
-## Running out of ruler
 
-- Everything so far assumed the intervals fit. Nothing guarantees that. The four avoidance intervals are set by gear and buffs, independently of each other, and no item checks what the others add up to.
-- Enter the boss. So far the attacker was a level-60 mob and the list had seven outcomes, but crush was empty. A raid boss is level 63. Three levels up does two things on the ruler: each of miss, dodge, parry and block loses 0.6 (0.2 per level per row, inferred), and a new 15-point interval appears, the crushing blow, between crit and ordinary damage.
-- With the numbers from the table above, the boss sees 4.4 miss, 8.4 dodge, 7.4 parry, 4.4 block, then 5.6 crit, 15 crush, and ordinary damage gets what is left. Same gear, same sheet, a worse ruler.
-- The ruler, live. Presets left to right: dungeon gear vs a level-60 mob, the same gear vs level 63, a raid tank with Shield Block down, Shield Block up a hair short, one point over the edge.
+
+
+
+
+
+
+
+## What an extra point is worth
+
+- The rule fixes the value of a point. A point of dodge removes one point from whichever interval is paying. While ordinary damage pays, one point of dodge is worth exactly one ordinary hit avoided per 100 swings, whatever the rest of the sheet says. Same for miss, parry, and nearly for block, since a blocked hit still lands with the block value taken off.
+- That is why the sheet can be trusted at all. Under the sequential or scaled rules a point of dodge was worth 0.95 or 0.91 of a point, and less the more you already had. Under the priority rule it is worth a point until the paying interval runs out.
+- Enter the boss. Against a level-60 mob the list above ordinary damage holds only crit, and the game removes that with defence. A raid boss is level 63, three levels up, and two things change on the ruler. Each of miss, dodge, parry and block loses 0.6 (0.2 per level per row, inferred), and a 15-point interval appears between crit and ordinary damage, the crushing blow at 150% damage.
+- With the numbers from the table, the boss sees 4.4 miss, 8.4 dodge, 7.4 parry, 4.4 block, then 5.6 crit, 15 crush, and ordinary damage takes the rest. Same gear, same sheet, a shorter ruler.
+- The ruler, live. Presets left to right: dungeon gear vs a level-60 mob, the same gear vs level 63, a raid tank with Shield Block down, Shield Block up a hair short, one point over the edge. The hatched part past the end is what the stats asked for and the ruler could not give.
 
 <iframe src="ruler.html" width="100%" height="680" loading="lazy" title="Attack table ruler: sliders for miss, dodge, parry and block, a boss level toggle and three rules for resolving the roll"></iframe>
 
-- Reading the bar. Segments on the line are what the boss can roll. The hatched part past the end is what the stats asked for and the ruler could not give.
-
-## Pushed over the edge
-
-- Shield Block. For a few seconds block gets +75 on the sheet. Four rows now ask for far more than the ruler has. Ordinary damage goes first, then the interval above it, crush, then crit.
-- The threshold in words. Crush is gone the moment the intervals above it, your four plus the boss's crit, cover the whole ruler. On the sheet that is 102.4 minus the boss's crit chance.
-- Where 102.4 comes from. Four rows, 0.6 each, 2.4 in total. It is 100 on the ruler dressed up in sheet units. Nothing magic.
-- Why the guides never mention crit. They assume defence has already removed it (440 against a +3 boss). Then crit is 0, and the sheet has to read exactly 102.4. A tank below the defence cap is uncrushable sooner, and crittable.
-- "A hair short" and "over the edge" on the ruler. 101.9 leaves crush at 0.5% of swings; one point of dodge and it is zero. A threshold, not a slope. This is the odd thing from the top of the post, explained.
-- Fine print. The order crit-above-crush is the wiki and Elitist Jerks model and has not been checked against Classic logs. It only matters for a tank between 96.8 and 102.4 on the sheet. Numbers box.
-
-## What the rule does to the value of a stat
-
-- Marginal product of a point of avoidance under priority: it removes one point of whatever segment is at the bottom of the line. Hit (worth 1.0 of a hit), then crush (1.5), then crit (2.0), then nothing (0).
-- Returns are non-monotone: rising in steps as you climb (convex region), then a collapse to zero past the last threshold. Not diminishing returns, the opposite, until the cliff.
-- Caps are kinks: the marginal value jumps at each threshold and the last jump is to zero. This is why "cap" is the right word and why 102.4 is not a soft target.
-- The sting in the order: near the cap, defence removes a point of crit and lets a point of crush back in. Worked case from the ruler: four rows at 90 on the line, defence 300, crit 5.6, crush 4.4. Raise defence to 440: crit 0, crush 10. Damage per 100 swings 17.8 → 15.0. Naive return 11.2, actual 2.8. Same gear, a point of dodge is worth 1.5.
-- Under pro rata none of this happens: marginal values are smooth, small and never collapse. The whole kink structure is an artefact of the priority rule.
-- Takeaway for a tank: a stat's worth depends on where the line currently ends, not on the stat. The sheet cannot tell you; the rule can.
+- Shield Block puts +75 on block for a few seconds and the four rows ask for more than the ruler holds. Ordinary damage goes first. Now the interval above it pays, crush, and a point of dodge removes a crushing blow instead of a hit. Worth 1.5 hits per 100 swings, not 1.
+- Once crush is gone, crit pays. A point is worth 2. Once crit is gone, nothing pays. A point is worth 0.
+- So returns to a point of avoidance rise in steps, 1, then 1.5, then 2, and then collapse to nothing. Increasing returns, then a cliff. This is the opposite of the diminishing returns a tooltip or a sim's stat weight suggests, and the cliff is what people call a cap.
+- The threshold. Crush is gone the moment the intervals above it, your four plus the boss's crit, cover the ruler. On the sheet that is 102.4 minus the boss's crit chance. The 2.4 is four rows times 0.6, 100 on the ruler dressed in sheet units. The guides say 102.4 flat because they assume defence has already removed crit (440 against a +3 boss).
+- "A hair short" and "over the edge" on the ruler. 101.9 leaves crush at 0.5% of swings; one more point of dodge and it is zero. A threshold, not a slope. This is the odd thing from the top of the post.
+- The sting in the order. Near the cap, defence buys less than it looks. Remove a point of crit and, while crush is still being cut, a point of crush comes back. Worked case from the ruler: four rows at 90 on the ruler, defence 300, crit 5.6, crush 4.4. Raise defence to 440: crit 0, crush 10. Damage per 100 swings 17.8 → 15.0. Naive return 11.2, actual 2.8. The same gear gives 1.5 for a point of dodge.
+- Under the scale-everything rule none of this happens. Every interval shrinks a little, crush never reaches zero, marginal values are smooth and small, and there is no cap anywhere. The kinks are a property of the rule, not of the stats.
+- Takeaway for a tank. A point's worth depends on which interval is paying, not on the stat. The sheet cannot tell you; the rule can.
+- Fine print. Crit-above-crush is the wiki and Elitist Jerks model and has not been checked against Classic logs. It only matters for a tank between 96.8 and 102.4 on the sheet. Numbers box.
 
 <details><summary>The maths</summary>
 
