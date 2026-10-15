@@ -1,0 +1,178 @@
+#!/usr/bin/env bash
+# blog — the whole writing workflow in one script.
+#
+#   blog new "Title of the post"   create a post folder from the archetype and open it
+#   blog open [slug]               open an existing post (latest draft if no slug)
+#   blog preview [slug]            run the live preview and open the browser on the post
+#   blog check [slug]              check a post would publish cleanly
+#   blog save                      commit and push whatever changed (drafts included); no checks
+#   blog publish [slug]            gate, flip draft, set lastmod, strip image metadata, commit, push
+#   blog list                      list posts and their status
+#
+# Config via environment (optional):
+#   BLOG_EDITOR   command to open a Markdown file (default: omawrite, falling back to xdg-open)
+#   BLOG_BROWSER  command to open a URL           (default: xdg-open)
+
+set -euo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$ROOT"
+POSTS="$ROOT/content/posts"
+EDITOR_CMD="${BLOG_EDITOR:-omawrite}"
+BROWSER_CMD="${BLOG_BROWSER:-xdg-open}"
+EXPECTED_EMAIL_RE='^[0-9]+\+hoggerfodder@users\.noreply\.github\.com$'
+PREVIEW_URL="http://localhost:1313"
+
+die()  { printf 'blog: %s\n' "$*" >&2; exit 1; }
+note() { printf '%s\n' "$*"; }
+
+slugify() {
+  printf '%s' "$1" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+|-+$//g'
+}
+
+# Resolve a slug (or none → latest draft, or the only post) to its index.md path.
+resolve_post() {
+  local slug="${1:-}"
+  if [[ -n "$slug" ]]; then
+    local matches
+    matches=$(ls -d "$POSTS"/*-"$slug" 2>/dev/null || true)
+    [[ -n "$matches" ]] || die "no post with slug '$slug'"
+    printf '%s/index.md' "$(printf '%s\n' "$matches" | tail -1)"
+    return
+  fi
+  local latest
+  latest=$(grep -ls '^draft: true' "$POSTS"/*/index.md 2>/dev/null | sort | tail -1 || true)
+  [[ -n "$latest" ]] || latest=$(ls "$POSTS"/*/index.md 2>/dev/null | sort | tail -1 || true)
+  [[ -n "$latest" ]] || die "no posts yet; try: blog new \"Title\""
+  printf '%s' "$latest"
+}
+
+open_in_editor() {
+  if command -v "$EDITOR_CMD" >/dev/null 2>&1; then
+    nohup "$EDITOR_CMD" "$1" >/dev/null 2>&1 &
+  else
+    nohup xdg-open "$1" >/dev/null 2>&1 &
+  fi
+}
+
+preview_running() { curl -fs -o /dev/null "$PREVIEW_URL" 2>/dev/null; }
+
+start_preview() {
+  if preview_running; then return; fi
+  note "starting preview at $PREVIEW_URL"
+  nohup hugo server -D --navigateToChanged >/tmp/hugo-preview.log 2>&1 &
+  for _ in $(seq 1 30); do preview_running && return; sleep 0.2; done
+  die "preview did not start; see /tmp/hugo-preview.log"
+}
+
+front() { awk -v k="$2" 'NR>1 && /^---$/ {exit} $0 ~ "^"k":" {sub("^"k": *",""); gsub(/^"|"$/,""); print; exit}' "$1"; }
+
+cmd_new() {
+  local title="${1:-}"
+  [[ -n "$title" ]] || die 'usage: blog new "Title of the post"'
+  local slug dir file
+  slug=$(slugify "$title")
+  dir="posts/$(date -u +%F)-$slug"
+  [[ ! -e "content/$dir" ]] || die "content/$dir already exists"
+  hugo new --kind posts "$dir/index.md" >/dev/null
+  file="content/$dir/index.md"
+  # Use the given title verbatim rather than the slug-derived one.
+  sed -i "0,/^title: .*/s||title: \"${title//|/\\|}\"|" "$file"
+  printf '# Notes for "%s"\n\nDump thoughts, equations and half-sentences here. Claude Code can draft from this.\n' "$title" > "content/$dir/NOTES.md"
+  note "created $file"
+  start_preview
+  open_in_editor "$file"
+  note "preview: $PREVIEW_URL/posts/$slug/"
+}
+
+cmd_open() {
+  local file; file=$(resolve_post "${1:-}")
+  start_preview
+  open_in_editor "$file"
+  note "opened $file"
+}
+
+cmd_preview() {
+  local file; file=$(resolve_post "${1:-}")
+  local slug; slug=$(front "$file" slug)
+  start_preview
+  nohup "$BROWSER_CMD" "$PREVIEW_URL/posts/$slug/" >/dev/null 2>&1 &
+  note "preview: $PREVIEW_URL/posts/$slug/"
+}
+
+cmd_list() {
+  for f in "$POSTS"/*/index.md; do
+    [[ -e "$f" ]] || { note "no posts yet"; return; }
+    local d t s
+    d=$(front "$f" draft); t=$(front "$f" title); s=$(front "$f" slug)
+    printf '%-9s %-28s %s\n' "$([[ "$d" == "true" ]] && echo draft || echo published)" "$s" "$t"
+  done
+}
+
+# ---- the gate: only what would make a broken publish -----------------------
+
+gate() {
+  local file="$1" fails=0
+  fail() { printf '  FAIL  %s\n' "$*"; fails=$((fails+1)); }
+
+  local email; email=$(git config user.email || true)
+  [[ "$email" =~ $EXPECTED_EMAIL_RE ]] || fail "git user.email is '$email'; must be the +hoggerfodder noreply address"
+  [[ -n "$(front "$file" title)" ]]       || fail "title is empty"
+  [[ -n "$(front "$file" description)" ]] || fail "description is empty (it is the link preview)"
+  grep -q 'Opening: the odd thing' "$file" && fail "archetype placeholder text still present"
+  grep -q 'patch X\.Y' "$file"            && fail "patch box still says X.Y"
+  hugo --quiet -D --destination /tmp/hugo-gate >/dev/null 2>&1 || fail "hugo build failed (run: hugo -D)"
+  rm -rf /tmp/hugo-gate
+
+  (( fails == 0 )) && return 0
+  printf 'gate: %d problem(s)\n' "$fails"; return 1
+}
+
+cmd_check() { gate "$(resolve_post "${1:-}")"; }
+
+cmd_save() {
+  local email; email=$(git config user.email || true)
+  [[ "$email" =~ $EXPECTED_EMAIL_RE ]] || die "git user.email is '$email'; must be the +hoggerfodder noreply address"
+  git add -A
+  if git diff --cached --quiet; then note "nothing to save"; return; fi
+  git commit -qm "Save $(date -u +'%Y-%m-%d %H:%M')"
+  git push -q
+  note "saved and pushed"
+}
+
+strip_images() {
+  local dir="$1" f
+  command -v exiftool >/dev/null 2>&1 || { note "exiftool not installed (sudo pacman -S perl-image-exiftool); skipping metadata strip"; return; }
+  for f in "$dir"/*.{jpg,jpeg,png,webp,tif,tiff}; do
+    [[ -f "$f" ]] || continue
+    exiftool -q -q -all= -overwrite_original "$f" && note "stripped metadata: $(basename "$f")"
+  done
+}
+
+cmd_publish() {
+  local file; file=$(resolve_post "${1:-}")
+  local dir; dir=$(dirname "$file")
+  gate "$file" || die "fix the lines above, then publish again"
+  strip_images "$dir"
+  rm -f "$dir/NOTES.md"
+  local today; today=$(date -u +%F)
+  sed -i "s/^draft: true$/draft: false/; s/^lastmod: .*/lastmod: $today/" "$file"
+  grep -q '^date: *$' "$file" && sed -i "s/^date: *$/date: $today/" "$file"
+  local title; title=$(front "$file" title)
+  git add -A
+  git commit -m "Post: $title" >/dev/null
+  git push
+  local slug; slug=$(front "$file" slug)
+  note "published: https://hoggerfodder.github.io/posts/$slug/ (live once the Action finishes, ~1 min)"
+  note "remember: add a row to content/mechanisms.md, and delete the sample post if it's still there"
+}
+
+case "${1:-}" in
+  new)     shift; cmd_new "$*";;
+  open)    cmd_open "${2:-}";;
+  preview) cmd_preview "${2:-}";;
+  check)   cmd_check "${2:-}";;
+  save)    cmd_save;;
+  publish) cmd_publish "${2:-}";;
+  list)    cmd_list;;
+  *)       sed -n '2,14p' "$0" | sed 's/^# \{0,1\}//';;
+esac

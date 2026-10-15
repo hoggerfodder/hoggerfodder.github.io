@@ -11,7 +11,7 @@ timeZone = "UTC"
 [params]
   mainSections = ["posts"]
   tagline = "Food for thought from Azeroth"
-  description = "Exploring the economics and maths behind the WoW mechanics, from first principles."
+  description = "Exploring WoW mechanics from first principles, with maths, game theory and economics."
   author = "Hoggerfodder"
   kofi = "https://ko-fi.com/hoggerfodder"
   github = "https://github.com/hoggerfodder/hoggerfodder.github.io"

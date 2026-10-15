@@ -1,10 +1,10 @@
 # Hogger Fodder
 
-Exploring the economics and maths behind the WoW mechanics, from first principles.
+Exploring WoW mechanics from first principles, with maths, game theory and economics.
 
 Live at https://hoggerfodder.github.io · [RSS](https://hoggerfodder.github.io/index.xml)
 
-Built with [Hugo](https://gohugo.io); templates and stylesheet are in-tree. `hugo server -D` previews locally; pushes to `main` deploy via GitHub Actions.
+Built with [Hugo](https://gohugo.io); templates and stylesheet are in-tree. `./blog` wraps the workflow (new, preview, check, publish); pushes to `main` deploy via GitHub Actions.
 
 Text and figures: [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/). Code: MIT. See `LICENSE`.
 

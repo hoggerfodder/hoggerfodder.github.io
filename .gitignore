@@ -15,3 +15,5 @@ drafts-private/
 
 # Local working notes
 NOTES.md
+content/posts/*/NOTES.md
+CLAUDE.local.md

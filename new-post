@@ -1,8 +1,0 @@
-#!/usr/bin/env sh
-# Create a new post folder from the archetype: ./new-post my-slug
-set -e
-[ -n "$1" ] || { echo "usage: ./new-post <slug>"; exit 1; }
-slug=$(printf '%s' "$1" | tr 'A-Z ' 'a-z-')
-dir="posts/$(date +%F)-$slug"
-hugo new --kind posts "$dir/index.md"
-echo "content/$dir/index.md"
