@@ -17,3 +17,6 @@ drafts-private/
 NOTES.md
 content/posts/*/NOTES.md
 CLAUDE.local.md
+
+# Local preview config that mounts drafts-private/
+hugo.local.toml

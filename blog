@@ -18,6 +18,8 @@ export TZ=UTC   # git records the local zone in every commit; keep it UTC
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT"
 POSTS="$ROOT/content/posts"
+PRIVATE="$ROOT/drafts-private"   # gitignored; posts here are previewed but never committed
+HUGO_CFG="hugo.toml"; [[ -f "$ROOT/hugo.local.toml" ]] && HUGO_CFG="hugo.toml,hugo.local.toml"
 EDITOR_CMD="${BLOG_EDITOR:-omawrite}"
 BROWSER_CMD="${BLOG_BROWSER:-xdg-open}"
 EXPECTED_EMAIL_RE='^[0-9]+\+hoggerfodder@users\.noreply\.github\.com$'
@@ -36,14 +38,14 @@ slugify() {
 resolve_post() {
   local slug="${1:-}"
   if [[ -n "$slug" ]]; then
-    local matches
-    matches=$(ls -d "$POSTS"/*-"$slug" 2>/dev/null || true)
+    local matches   # match the slug in the front matter, so the folder name may differ
+    matches=$(grep -ls "^slug: \"$slug\"" "$PRIVATE"/*/index.md "$POSTS"/*/index.md 2>/dev/null || true)
     [[ -n "$matches" ]] || die "no post with slug '$slug'"
-    printf '%s/index.md' "$(printf '%s\n' "$matches" | tail -1)"
+    printf '%s' "$(printf '%s\n' "$matches" | tail -1)"
     return
   fi
   local latest
-  latest=$(grep -ls '^draft: true' "$POSTS"/*/index.md 2>/dev/null | sort | tail -1 || true)
+  latest=$(grep -ls '^draft: true' "$PRIVATE"/*/index.md "$POSTS"/*/index.md 2>/dev/null | sort -t/ -k$(( $(tr -cd / <<<"$ROOT" | wc -c) + 2 )) | tail -1 || true)
   [[ -n "$latest" ]] || latest=$(ls "$POSTS"/*/index.md 2>/dev/null | sort | tail -1 || true)
   [[ -n "$latest" ]] || die "no posts yet; try: blog new \"Title\""
   printf '%s' "$latest"
@@ -62,7 +64,7 @@ preview_running() { curl -fs -o /dev/null "$PREVIEW_URL" 2>/dev/null; }
 start_preview() {
   if preview_running; then return; fi
   note "starting preview at $PREVIEW_URL"
-  nohup hugo server -D --navigateToChanged >/tmp/hugo-preview.log 2>&1 &
+  nohup hugo server -D --navigateToChanged --config "$HUGO_CFG" >/tmp/hugo-preview.log 2>&1 &
   for _ in $(seq 1 30); do preview_running && return; sleep 0.2; done
   die "preview did not start; see /tmp/hugo-preview.log"
 }
@@ -103,12 +105,16 @@ cmd_preview() {
 }
 
 cmd_list() {
-  for f in "$POSTS"/*/index.md; do
-    [[ -e "$f" ]] || { note "no posts yet"; return; }
-    local d t s
+  local any=0 f
+  for f in "$PRIVATE"/*/index.md "$POSTS"/*/index.md; do
+    [[ -e "$f" ]] || continue
+    any=1
+    local d t s where
     d=$(front "$f" draft); t=$(front "$f" title); s=$(front "$f" slug)
-    printf '%-9s %-28s %s\n' "$([[ "$d" == "true" ]] && echo draft || echo published)" "$s" "$t"
+    where=$([[ "$f" == "$PRIVATE"/* ]] && echo "private" || { [[ "$d" == "true" ]] && echo draft || echo published; })
+    printf '%-9s %-28s %s\n' "$where" "$s" "$t"
   done
+  (( any )) || note "no posts yet"
 }
 
 # ---- the gate: only what would make a broken publish -----------------------
@@ -164,6 +170,10 @@ strip_images() {
 cmd_publish() {
   local file; file=$(resolve_post "${1:-}")
   local dir; dir=$(dirname "$file")
+  if [[ "$dir" == "$PRIVATE"/* ]]; then
+    mv "$dir" "$POSTS/" && dir="$POSTS/$(basename "$dir")" && file="$dir/index.md"
+    note "moved $(basename "$dir") into content/posts/"
+  fi
   gate "$file" || die "fix the lines above, then publish again"
   strip_images "$dir"
   local today; today=$(date -u +%F)
