@@ -2,6 +2,7 @@
 {{ with .Site.Params.giscus }}{{ if and .repoId .categoryId }}
 <section class="comments" aria-label="Comments">
   <h2>Comments and corrections</h2>
+  <p>Commenting needs a GitHub account. If you have none, write to <a href="mailto:hoggerfodder@proton.me">hoggerfodder@proton.me</a>. Corrections go into the post's Revisions with credit.</p>
   <script src="https://giscus.app/client.js"
     data-repo="{{ .repo }}"
     data-repo-id="{{ .repoId }}"
