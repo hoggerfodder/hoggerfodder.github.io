@@ -15,7 +15,7 @@ This is the interactive element from the post [Uncrushable at 102.4%: How a Tank
 
 ## What it shows
 
-One melee swing against you is decided by a single roll from 0 to 100. The possible outcomes are laid out on that line in a fixed order, miss, dodge, parry, block, crit, crush, ordinary hit, and each takes an interval as long as its chance. Whatever does not fit before the 100 cannot happen.
+One melee swing against you is decided by a single roll from 0 to 100. The possible outcomes are laid out on that line in a fixed order, miss, dodge, parry, block, crit, crush, ordinary hit, and each takes an interval corresponding to its probability of occurrence. Whatever does not fit before the 100 cannot happen.
 
 The **ruler** lane draws those intervals for the boss level you pick. The **sheet** lane above it draws the four defensive numbers at the values the character sheet shows, which are measured against an equal-level attacker. A raid boss three levels above you takes 0.6 off each of the four and gains a crushing-blow interval of 15. The orange mark on the sheet lane is the sum the four have to reach so that block still touches the 100 after that deduction. With the boss's crit reduced to zero it sits at 102.4.
 
