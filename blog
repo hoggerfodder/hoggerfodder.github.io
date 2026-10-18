@@ -187,7 +187,7 @@ cmd_publish() {
   git commit -m "Post: $title" >/dev/null
   git push
   local slug; slug=$(front "$file" slug)
-  note "published: https://hoggerfodder.github.io/posts/$slug/ (live once the Action finishes, ~1 min)"
+  note "published: https://hoggerfodder.com/posts/$slug/ (live once the Action finishes, ~1 min)"
   note "remember: add a row to content/mechanisms.md"
 }
 

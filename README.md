@@ -2,7 +2,7 @@
 
 Exploring WoW mechanics from first principles, with maths, game theory and economics.
 
-Live at https://hoggerfodder.github.io · [RSS](https://hoggerfodder.github.io/index.xml)
+Live at https://hoggerfodder.com · [RSS](https://hoggerfodder.com/index.xml)
 
 Built with [Hugo](https://gohugo.io); templates and stylesheet are in-tree. `./blog` wraps the workflow (new, preview, check, publish); pushes to `main` deploy via GitHub Actions.
 
